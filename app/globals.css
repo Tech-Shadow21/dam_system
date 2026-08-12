@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* "Fortified Archive" palette as CSS variables, per 04-frontend-specification.md.
+       Exposed as variables (not just Tailwind tokens) so the external share portal
+       can override --portal-* at runtime with an org's own brand colors. */
+    --color-primary: #1b2a4a;
+    --color-accent: #c9a24b;
+    --color-canvas: #f7f6f3;
+    --color-surface: #ffffff;
+    --color-ink: #1a1d23;
+    --color-ink-secondary: #5b6472;
+    --color-line: #e2e0da;
+    --color-error: #c4453d;
+    --color-success: #2f7a5c;
+    --color-warning: #c98a2c;
+
+    /* Share-portal defaults — fall back to the light Vaultra palette if the org
+       has not set brand colors. */
+    --portal-primary: var(--color-primary);
+    --portal-accent: var(--color-accent);
+  }
+
+  .dark {
+    --color-canvas: #0e1116;
+    --color-surface: #161b22;
+    --color-ink: #e8e6e1;
+    --color-ink-secondary: #9aa1ac;
+    --color-line: #262c36;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-canvas text-ink font-sans text-body-sm;
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+  }
+
+  /* Never the default browser blue outline — navy ring per spec. */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-primary/20;
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display;
+  }
+
+  /* Respect a reduced-motion preference: the shimmer, fades and slide-ups are
+     decorative, and the spinner keeps a minimal rotation so "busy" still reads. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+
+    .animate-spin {
+      animation: spin 1.5s linear infinite !important;
+    }
+  }
+}
+
+@layer utilities {
+  /* Loading skeleton shimmer used by TICKET-019 skeleton components. */
+  .skeleton {
+    @apply relative overflow-hidden bg-line/60;
+  }
+  .skeleton::after {
+    @apply absolute inset-0 animate-shimmer;
+    content: '';
+    background-image: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.55),
+      transparent
+    );
+    transform: translateX(-100%);
+  }
+
+  /* Screen-reader-only, for accessible labels in the TICKET-020 pass. */
+  .sr-only-focusable:not(:focus):not(:focus-within) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
