@@ -1,5 +1,5 @@
 <p align="center">
-  <h1 align="center">🏛️ Vaultra — Digital Asset Management System</h1>
+  <h1 align="center">Vaultra — Digital Asset Management System</h1>
   <p align="center">
     <strong>Enterprise-grade digital asset management without enterprise-grade complexity.</strong>
   </p>
@@ -16,27 +16,27 @@
 
 ---
 
-## 🎯 Overview
+##  Overview
 
 **Vaultra** is a modern Digital Asset Management (DAM) system built for mid-size and large organizations that need a centralized, secure, and searchable home for all their brand, marketing, and product assets — logos, photography, videos, templates, campaign files, and more.
 
 Unlike heavyweight enterprise DAM tools (Bynder, Brandfolder, Widen), Vaultra delivers enterprise-grade control with a lean, modern stack — making it accessible to teams that want precision and speed without the complexity and cost.
 
-## ✨ Features
+##  Features
 
 | Feature | Description |
 |---|---|
-| **📤 Asset Upload** | Drag-and-drop or bulk upload of images, videos, documents, and design files |
-| **📁 Folder & Collection Structure** | Nested folders plus flat "collections" (saved groupings without moving files) |
-| **🏷️ Metadata & Manual Tagging** | Custom metadata fields per organization + free-text and controlled-vocabulary tags |
-| **🔍 Search & Filter** | Full-text search across filenames, tags, and metadata with filter facets |
-| **🔐 Role-Based Permissions** | Organization-level roles: Owner, Admin, Manager, Contributor, Viewer |
-| **🔗 Shareable Links** | Public or password-protected links with expiry dates, revocable anytime |
-| **🎨 Branded Portal** | Org-level branded landing page (logo, colors) for external share links |
-| **👁️ Asset Preview** | In-browser preview for images, video, and PDF without downloading |
-| **📜 Version History** | Re-upload replaces assets while preserving prior versions for rollback/audit |
+| ** Asset Upload** | Drag-and-drop or bulk upload of images, videos, documents, and design files |
+| ** Folder & Collection Structure** | Nested folders plus flat "collections" (saved groupings without moving files) |
+| ** Metadata & Manual Tagging** | Custom metadata fields per organization + free-text and controlled-vocabulary tags |
+| ** Search & Filter** | Full-text search across filenames, tags, and metadata with filter facets |
+| ** Role-Based Permissions** | Organization-level roles: Owner, Admin, Manager, Contributor, Viewer |
+| ** Shareable Links** | Public or password-protected links with expiry dates, revocable anytime |
+| ** Branded Portal** | Org-level branded landing page (logo, colors) for external share links |
+| ** Asset Preview** | In-browser preview for images, video, and PDF without downloading |
+| ** Version History** | Re-upload replaces assets while preserving prior versions for rollback/audit |
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 | Layer | Technology | Purpose |
 |---|---|---|
@@ -50,7 +50,7 @@ Unlike heavyweight enterprise DAM tools (Bynder, Brandfolder, Widen), Vaultra de
 | **Validation** | Zod | Runtime schema validation for forms and API payloads |
 | **Hosting** | Vercel | Zero-config deployment with CI/CD |
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 
@@ -212,17 +212,17 @@ erDiagram
 | `share_links` | Expiring, optionally password-protected share links |
 | `metadata_fields` | Custom per-org metadata field definitions |
 
-## 🔐 Roles & Permissions
+##  Roles & Permissions
 
 | Role | View | Upload | Edit/Tag | Delete | Manage Users | Org Settings |
 |---|---|---|---|---|---|---|
-| **Viewer** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Contributor** | ✅ | ✅ | Own only | ❌ | ❌ | ❌ |
-| **Manager** | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
-| **Admin** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Owner** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Viewer** | Yes | No | No | No | No | No |
+| **Contributor** | Yes | Yes | Own only | No | No | No |
+| **Manager** | Yes | Yes | Yes | Yes | No | No |
+| **Admin** | Yes | Yes | Yes | Yes | Yes | Yes |
+| **Owner** | Yes | Yes | Yes | Yes | Yes | Yes |
 
-## 📜 Available Scripts
+##  Available Scripts
 
 | Command | Description |
 |---|---|
@@ -234,7 +234,7 @@ erDiagram
 | `npm run db:test` | Run all database tests (schema, RLS, search, permissions) |
 | `npm run verify` | Full verification: typecheck + db tests + build |
 
-## 🤝 Contributing
+##  Contributing
 
 Contributions are welcome! Here's how to get started:
 
@@ -252,7 +252,7 @@ Contributions are welcome! Here's how to get started:
 - Ensure RLS policies cover any new tables
 - Run `npm run verify` before submitting
 
-## 📄 License
+##  License
 
 This project is open source and available under the [MIT License](LICENSE).
 
