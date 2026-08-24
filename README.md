@@ -128,7 +128,7 @@ npm run verify
 
 This runs type checking, database tests, and the production build to ensure everything is working.
 
-## 📂 Project Structure
+## Project Structure
 
 ```
 dam_system/
@@ -178,7 +178,7 @@ dam_system/
 └── package.json
 ```
 
-## 🗄️ Database Schema
+## Database Schema
 
 The database is designed around a **single-organization-per-account** model with full Row-Level Security (RLS).
 
