@@ -1,263 +1,171 @@
-<p align="center">
-  <h1 align="center">Vaultra — Digital Asset Management System</h1>
-  <p align="center">
-    <strong>Enterprise-grade digital asset management without enterprise-grade complexity.</strong>
-  </p>
-  <p align="center">
-    <a href="#features">Features</a> •
-    <a href="#tech-stack">Tech Stack</a> •
-    <a href="#getting-started">Getting Started</a> •
-    <a href="#project-structure">Project Structure</a> •
-    <a href="#database-schema">Database Schema</a> •
-    <a href="#contributing">Contributing</a> •
-    <a href="#license">License</a>
-  </p>
-</p>
+# Vaultra
 
----
+Vaultra is a digital asset management (DAM) app. Teams use it to store, organize, tag, search and share files such as logos, photos, videos and documents.
 
-##  Overview
+Built with Next.js 14, TypeScript, Tailwind CSS and Supabase.
 
-**Vaultra** is a modern Digital Asset Management (DAM) system built for mid-size and large organizations that need a centralized, secure, and searchable home for all their brand, marketing, and product assets — logos, photography, videos, templates, campaign files, and more.
+![Vaultra dashboard](docs/screenshots/dashboard.jpg)
 
-Unlike heavyweight enterprise DAM tools (Bynder, Brandfolder, Widen), Vaultra delivers enterprise-grade control with a lean, modern stack — making it accessible to teams that want precision and speed without the complexity and cost.
+## Features
 
-##  Features
+- Upload files by drag and drop or file picker, up to 5 GB each. Files go directly to storage through signed URLs. Image thumbnails are generated on the server with Sharp.
+- Organize assets in nested folders. Collections group assets without moving them.
+- Tag assets from a shared tag list, and add custom metadata fields per organization.
+- Search filenames, tags and metadata (Postgres full-text search). Filter by file type, tag, folder and uploader.
+- Share a single asset or a folder with a link. Each link has an expiry date and can require a password, block downloads, or be revoked at any time.
+- Shared links open on a public page that shows your organization's name, logo and colors.
+- Replacing a file keeps earlier versions, so you can see and restore them.
+- Five roles: Owner, Admin, Manager, Contributor, Viewer. Permissions are checked in the app and in the database through Row-Level Security.
+- Admins invite team members by link and choose their role.
 
-| Feature | Description |
+Recipients of a share link see this page:
+
+![Public share page](docs/screenshots/share-portal.jpg)
+
+## Tech stack
+
+| Layer | Technology |
 |---|---|
-| ** Asset Upload** | Drag-and-drop or bulk upload of images, videos, documents, and design files |
-| ** Folder & Collection Structure** | Nested folders plus flat "collections" (saved groupings without moving files) |
-| ** Metadata & Manual Tagging** | Custom metadata fields per organization + free-text and controlled-vocabulary tags |
-| ** Search & Filter** | Full-text search across filenames, tags, and metadata with filter facets |
-| ** Role-Based Permissions** | Organization-level roles: Owner, Admin, Manager, Contributor, Viewer |
-| ** Shareable Links** | Public or password-protected links with expiry dates, revocable anytime |
-| ** Branded Portal** | Org-level branded landing page (logo, colors) for external share links |
-| ** Asset Preview** | In-browser preview for images, video, and PDF without downloading |
-| ** Version History** | Re-upload replaces assets while preserving prior versions for rollback/audit |
+| Framework | Next.js 14 (App Router, Server Actions) |
+| Language | TypeScript 5 |
+| Styling | Tailwind CSS 3 |
+| Database | PostgreSQL on Supabase, with Row-Level Security |
+| Auth | Supabase Auth (email and password) |
+| File storage | Supabase Storage (private bucket) |
+| Image processing | Sharp |
+| Validation | Zod |
+| Tests | PGlite (Postgres running in-process) |
 
-##  Tech Stack
+## Setup
 
-| Layer | Technology | Purpose |
-|---|---|---|
-| **Frontend** | Next.js 14 (App Router) | Server components, routing, and SSR |
-| **Language** | TypeScript 5 | Type safety across the full stack |
-| **Styling** | Tailwind CSS 3 | Utility-first styling with custom design tokens |
-| **Database** | PostgreSQL (Supabase) | Relational storage with Row-Level Security |
-| **Auth** | Supabase Auth (GoTrue) | Email/password + invite flows with JWT sessions |
-| **File Storage** | Supabase Storage | S3-compatible object storage for assets |
-| **Image Processing** | Sharp | Server-side thumbnail and preview generation |
-| **Validation** | Zod | Runtime schema validation for forms and API payloads |
-| **Hosting** | Vercel | Zero-config deployment with CI/CD |
+You need Node.js 18 or newer, a Supabase project (the free tier works), and the [Supabase CLI](https://supabase.com/docs/guides/cli) (`brew install supabase/tap/supabase`).
 
-##  Getting Started
+1. Clone the repo and install dependencies:
 
-### Prerequisites
+   ```bash
+   git clone https://github.com/Tech-Shadow21/dam_system.git
+   cd dam_system
+   npm install
+   ```
 
-- **Node.js** 18+ and **npm**
-- A **Supabase** project ([create one free](https://supabase.com))
+2. Link your Supabase project and apply the migrations:
 
-### 1. Clone the Repository
+   ```bash
+   supabase login
+   supabase link --project-ref <your-project-ref>
+   supabase db push
+   ```
 
-```bash
-git clone https://github.com/Tech-Shadow21/dam_system.git
-cd dam_system
-```
+   This runs the four files in `supabase/migrations/`, which create the tables, security policies, the private `vaultra-assets` storage bucket and the search functions. Without the CLI, you can paste each file into the Supabase SQL editor in numeric order.
 
-### 2. Install Dependencies
+3. Create `.env.local`:
 
-```bash
-npm install
-```
+   ```bash
+   cp .env.example .env.local
+   ```
 
-### 3. Configure Environment Variables
+   | Variable | Value |
+   |---|---|
+   | `NEXT_PUBLIC_SUPABASE_URL` | Project URL, from Project Settings > API |
+   | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | The `anon` key from the same page |
+   | `SUPABASE_SERVICE_ROLE_KEY` | The `service_role` key. Keep this secret and server-side only. |
+   | `SUPABASE_STORAGE_BUCKET` | `vaultra-assets` |
+   | `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` for local development |
+   | `SHARE_LINK_SIGNING_SECRET` | Output of `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` |
 
-Copy the example environment file and fill in your values:
+   You can also print the keys with `supabase projects api-keys --project-ref <your-project-ref>`.
 
-```bash
-cp .env.example .env.local
-```
+4. Start the app:
 
-Required variables:
+   ```bash
+   npm run dev
+   ```
 
-| Variable | Description |
-|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase public/anon key (safe for browser) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Server-only key that bypasses RLS (**never expose to client**) |
-| `SUPABASE_STORAGE_BUCKET` | Name of the Supabase storage bucket (default: `vaultra-assets`) |
-| `NEXT_PUBLIC_APP_URL` | Base app URL (default: `http://localhost:3000`) |
-| `SHARE_LINK_SIGNING_SECRET` | Secret for signing share tokens (generate with command below) |
+   Open http://localhost:3000 and sign up. The first account creates the organization and becomes its Owner. If email confirmation is enabled in Supabase Auth (the default), click the link in the confirmation email before signing in.
 
-Generate a share link signing secret:
+`supabase/seed.sql` is optional. It creates a sample organization with folders and tags but no users, so you can't sign in to it.
 
-```bash
-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-```
+## Roles
 
-### 4. Set Up the Database
+| Permission | Viewer | Contributor | Manager | Admin | Owner |
+|---|:-:|:-:|:-:|:-:|:-:|
+| View, search and download | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Upload | | ✓ | ✓ | ✓ | ✓ |
+| Edit, tag and delete own assets | | ✓ | ✓ | ✓ | ✓ |
+| Create collections and share links | | ✓ | ✓ | ✓ | ✓ |
+| Edit, tag and delete any asset | | | ✓ | ✓ | ✓ |
+| Manage folders, tags and metadata fields | | | ✓ | ✓ | ✓ |
+| Manage other users' share links | | | ✓ | ✓ | ✓ |
+| Invite and manage users | | | | ✓ | ✓ |
+| Organization settings and branding | | | | ✓ | ✓ |
+| Billing and deleting the organization | | | | | ✓ |
 
-Run the SQL migration files in your Supabase SQL editor in order:
+The same rules exist in `lib/permissions.ts` and in the SQL function `has_permission()`. A test fails if the two disagree.
 
-```
-supabase/migrations/0001_initial_schema.sql
-supabase/migrations/0002_rls_policies.sql
-supabase/migrations/0003_storage_bucket_policies.sql
-supabase/migrations/0004_search.sql
-```
-
-Optionally seed with sample data:
+## Tests
 
 ```bash
-# Run supabase/seed.sql in your Supabase SQL editor
+npm run db:test   # database tests
+npm run verify    # type check, database tests and production build
 ```
 
-### 5. Run the Development Server
+The database tests run on PGlite and don't need a Supabase project. They cover the schema, Row-Level Security (one organization can't read another's data), search, the permission check above, color contrast, and the main flow from sign-up to upload, tagging, search, sharing and revoking a link.
 
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-### 6. Verify the Build
-
-```bash
-npm run verify
-```
-
-This runs type checking, database tests, and the production build to ensure everything is working.
-
-## Project Structure
+## Project structure
 
 ```
-dam_system/
-├── app/
-│   ├── (auth)/                    # Authentication pages
-│   │   ├── login/                 # Login page & form
-│   │   ├── signup/                # Sign-up page & form
-│   │   └── invite/                # Invite acceptance flow
-│   ├── (dashboard)/               # Authenticated app shell
-│   │   ├── page.tsx               # Home / recent assets
-│   │   ├── library/               # Folder browsing & asset detail
-│   │   ├── collections/           # Collection management
-│   │   ├── search/                # Search & filter interface
-│   │   ├── shares/                # Manage active share links
-│   │   └── settings/              # Org, user, branding settings
-│   ├── (public)/                  # Unauthenticated routes
-│   │   └── share/[token]/         # External branded share portal
-│   └── api/                       # API routes
-│       ├── upload/                # File upload endpoint
-│       └── assets/[id]/           # Asset CRUD operations
-├── components/
-│   ├── ui/                        # Shared primitives (Button, Modal, Card, etc.)
-│   ├── asset/                     # Asset-specific components
-│   ├── folder/                    # Folder tree & breadcrumb
-│   ├── layout/                    # App shell, sidebar, topbar
-│   └── share/                     # Share link & portal components
-├── lib/
-│   ├── supabase/                  # Supabase client configurations
-│   │   ├── client.ts              # Browser client
-│   │   ├── server.ts              # Server component/action client
-│   │   └── admin.ts               # Service-role client (server-only)
-│   ├── storage/                   # File storage & thumbnail utilities
-│   ├── permissions.ts             # Role → permission mapping
-│   ├── auth.ts                    # Authentication helpers
-│   ├── queries.ts                 # Database query helpers
-│   ├── share-links.ts             # Share link token utilities
-│   └── validation/                # Zod schemas
-├── types/
-│   └── database.ts                # Supabase generated types
-├── supabase/
-│   ├── migrations/                # SQL migration files (4 files)
-│   ├── seed.sql                   # Sample data seed
-│   └── tests/                     # Database tests (schema, RLS, search, etc.)
-├── middleware.ts                   # Route protection & session refresh
-├── tailwind.config.ts             # Custom design tokens & theme
-├── next.config.mjs                # Next.js configuration
-└── package.json
+app/
+  (auth)/               login, sign-up, invite acceptance
+  (dashboard)/          home, library, collections, search, shares, settings
+  (public)/share/       public share page and downloads
+  api/                  upload and asset endpoints
+components/             UI components (asset, folder, layout, share, ui)
+lib/
+  supabase/             Supabase clients (browser, server, service role)
+  storage/              uploads, storage access, thumbnails
+  validation/           Zod schemas
+  permissions.ts        role permissions
+  share-links.ts        share link tokens and lookup
+supabase/
+  migrations/           SQL migrations 0001-0004
+  tests/                database tests
+  seed.sql              optional sample data
+  config.toml           Supabase CLI config
+types/database.ts       database types
+middleware.ts           session refresh and route protection
 ```
 
-## Database Schema
+## Database
 
-The database is designed around a **single-organization-per-account** model with full Row-Level Security (RLS).
+Each user belongs to one organization. Row-Level Security limits every query to rows from the user's own organization.
 
 ```mermaid
 erDiagram
-    organizations ||--o{ users : "has"
-    organizations ||--o{ folders : "owns"
-    organizations ||--o{ collections : "owns"
-    organizations ||--o{ assets : "owns"
-    organizations ||--o{ tags : "owns"
-    organizations ||--o{ share_links : "owns"
-    organizations ||--o{ metadata_fields : "defines"
-    folders ||--o{ assets : "contains"
-    folders ||--o{ folders : "nested in"
-    assets ||--o{ asset_versions : "versioned by"
-    assets }o--o{ collections : "grouped in"
+    organizations ||--o{ users : has
+    organizations ||--o{ folders : owns
+    organizations ||--o{ collections : owns
+    organizations ||--o{ assets : owns
+    organizations ||--o{ tags : owns
+    organizations ||--o{ share_links : owns
+    organizations ||--o{ metadata_fields : defines
+    folders ||--o{ folders : "parent of"
+    folders ||--o{ assets : contains
+    assets ||--o{ asset_versions : has
+    assets }o--o{ collections : "in"
     assets }o--o{ tags : "tagged with"
 ```
 
-### Key Tables
+## Known limitations
 
-| Table | Purpose |
-|---|---|
-| `organizations` | Org profile, branding (logo, colors), plan tier |
-| `users` | Members with roles (owner/admin/manager/contributor/viewer) |
-| `folders` | Hierarchical nested folder structure |
-| `collections` | Flat groupings of assets (virtual folders) |
-| `assets` | Core asset records with metadata, versioning, and soft delete |
-| `asset_versions` | Version history for every re-upload |
-| `tags` | Organization-scoped tags |
-| `share_links` | Expiring, optionally password-protected share links |
-| `metadata_fields` | Custom per-org metadata field definitions |
+- Invite emails are not sent automatically. After inviting someone, an admin copies the invite link and sends it.
+- Failed password attempts on share links are counted in server memory, so the count resets when the server restarts.
+- Supabase's free tier allows a 500 MB database and 1 GB of file storage, and pauses projects after about a week without activity. A paused project can be restored from the Supabase dashboard.
 
-##  Roles & Permissions
+## Contributing
 
-| Role | View | Upload | Edit/Tag | Delete | Manage Users | Org Settings |
-|---|---|---|---|---|---|---|
-| **Viewer** | Yes | No | No | No | No | No |
-| **Contributor** | Yes | Yes | Own only | No | No | No |
-| **Manager** | Yes | Yes | Yes | Yes | No | No |
-| **Admin** | Yes | Yes | Yes | Yes | Yes | Yes |
-| **Owner** | Yes | Yes | Yes | Yes | Yes | Yes |
+Create a branch, make your change, run `npm run verify`, and open a pull request.
 
-##  Available Scripts
-
-| Command | Description |
-|---|---|
-| `npm run dev` | Start the development server |
-| `npm run build` | Build for production |
-| `npm run start` | Start the production server |
-| `npm run lint` | Run ESLint |
-| `npm run typecheck` | Run TypeScript type checking |
-| `npm run db:test` | Run all database tests (schema, RLS, search, permissions) |
-| `npm run verify` | Full verification: typecheck + db tests + build |
-
-##  Contributing
-
-Contributions are welcome! Here's how to get started:
-
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
-4. **Push** to the branch (`git push origin feature/amazing-feature`)
-5. **Open** a Pull Request
-
-### Guidelines
-
-- Follow the existing code structure and patterns
-- Server Actions live alongside the routes that use them (e.g., `app/(dashboard)/library/actions.ts`)
-- Use Zod schemas for all form/API validation
-- Ensure RLS policies cover any new tables
-- Run `npm run verify` before submitting
-
-##  License
-
-This project is open source and available under the [MIT License](LICENSE).
-
----
-
-<p align="center">
-  Built with using Next.js, Supabase, and TypeScript
-</p>
+- Put Server Actions next to the route that uses them, for example `app/(dashboard)/library/actions.ts`.
+- Validate form and API input with Zod schemas in `lib/validation/`.
+- Add Row-Level Security policies for any new table.
+- If you change permissions, update both `lib/permissions.ts` and `has_permission()`.
